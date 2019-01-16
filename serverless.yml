@@ -1,0 +1,34 @@
+service: recsys-exporter
+
+# Use the serverless-webpack plugin to transpile ES6
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+# serverless-webpack configuration
+# Enable auto-packing of external modules
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+  # Load our secret environment variables based on the current stage.
+  # Fallback to default if it is not in prod.
+  environment: ${file(env.yml):${self:custom.stage}, file(env.yml):default}
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: prod
+  region: ap-southeast-2
+  environment:
+    DB_HOST: ${self:custom.environment.DB_HOST}
+    DB_USER: ${self:custom.environment.DB_USER}
+    DB_PASS: ${self:custom.environment.DB_PASS}
+    DB_NAME: ${self:custom.environment.DB_NAME}
+  
+
+functions:
+  exportTable:
+    handler: handler.exportTable
+    vpc: ${file(vpc.yml)}
