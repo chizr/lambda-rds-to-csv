@@ -127,7 +127,7 @@ export const exportTable = async (event) => { // eslint-disable-line import/pref
   }
 
   const bucketParams = {
-    Bucket: 'bucket-goes-here',
+    Bucket: event.s3Bucket || process.env.S3_BUCKET || 'default-bucket',
     Key: fileName,
     Body: fs.readFileSync(filePath).toString('utf-8'),
   };
